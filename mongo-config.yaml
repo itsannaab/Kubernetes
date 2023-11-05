@@ -1,0 +1,8 @@
+#ConfigMap - MongoDB Endpoint
+
+apiVersion: v1
+kind: ConfigMap   #tipo
+metadata:
+  name: mongo-config  #pode ser usado um nome arbitrario
+data:
+  mongo-url: mongo-service

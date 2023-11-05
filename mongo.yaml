@@ -1,0 +1,49 @@
+#Deployment and Service - MongoDB Application with internal Service
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+  labels:  #identifica endereço dos componentes usando a label
+    app: mongo
+spec:  #deployment specific specification
+  replicas: 1  #quantos Pods vao ser criados
+  selector:  
+    matchLabels:  #combina todos os pods com label "app:nginx"
+      app: mongo
+  template:    #Blueprint for Pods - configuraçao do Pod
+    metadata:
+      labels:  #identifica endereço dos componentes usando a label
+        app: mongo
+    spec:
+      containers:  #definicao dos containers, criacao dos Pods com imagem mongo:5.0
+      - name: mongodb
+        image: mongo:5.0
+        ports:
+        - containerPort: 27017
+        env: 
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom: 
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-user
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-password
+
+---
+#Server Configuration File - internal service
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+spec:
+  selector: #seleciona pods para encaminhar os requests para o mongo-service
+    app: mongo
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
